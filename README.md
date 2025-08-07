@@ -37,7 +37,7 @@ Inspired by Iron Man’s **J.A.R.V.I.S.**, this project aims to create a **fully
 
 ## 📄 License
 
-MIT — but this is a personal dream project, not for commercial use.
+This project is licensed under the MIT License — see the [LICENSE.md](./LICENSE.md) file for details.
 
 
 # H.A.Y.D.A.R. V1 — Voice-to-GPT Personal Assistant
