@@ -3,10 +3,12 @@ import numpy as np
 import whisper
 import scipy.io.wavfile as wav
 import tempfile
+import ollama
+import time
 
 # Ses parametreleri
-DURATION = 5  # saniye cinsinden kayıt süresi
-SAMPLERATE = 44100  # 44.1kHz CD kalitesinde
+DURATION = 5  # saniye
+SAMPLERATE = 44100  # 44.1 kHz CD kalitesi
 
 def record_audio(duration=DURATION):
     print("🎙️ Dinliyorum...")
@@ -22,18 +24,38 @@ def record_audio(duration=DURATION):
     return temp_wav.name
 
 def transcribe_audio(audio_path):
-    print("🔍 Ses yazıya dönüştürülüyor...")
-    model = whisper.load_model("base")  # veya "small", "medium", "large"
-    result = model.transcribe(audio_path, language='tr')  # Türkçe varsayımı
-    print(f"📝 Yazı: {result['text']}")
+    print("📝 Ses yazıya dönüştürülüyor...")
+
+    # Cuda destekliyorsa burayı device='cuda' yapabilirsin
+    model = whisper.load_model("base")  # veya whisper.load_model("base", device="cuda")
+    result = model.transcribe(audio_path, language='tr')
+
+    print(f"📄 Metin: {result['text']}")
     return result['text']
 
 def listen_and_transcribe():
-    audio_file = record_audio()
-    text = transcribe_audio(audio_file)
+    audio_path = record_audio()
+    text = transcribe_audio(audio_path)
     return text
 
-# Test (isteğe bağlı)
+def get_gpt_response(prompt):
+    print("🧠 H.A.Y.D.A.R. düşünüyor...")
+    start_time = time.time()
+
+    response = ollama.chat(
+        model='gpt-oss:20b',
+        messages=[{'role': 'user', 'content': prompt}]
+    )
+
+    duration = time.time() - start_time
+    message = response['message']['content']
+
+    print(f"💬 Yanıt: {message}")
+    print(f"⏱️ Süre: {duration:.2f} saniye")
+    return message
+
 if __name__ == "__main__":
-    output = listen_and_transcribe()
-    print("🎧 Duyulan:", output)
+    input_text = listen_and_transcribe()
+    print("🔊 Algılanan:", input_text)
+
+    get_gpt_response(input_text)
