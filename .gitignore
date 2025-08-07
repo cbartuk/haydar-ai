@@ -13,3 +13,14 @@ __pycache__/
 
 # Logs
 *.log
+
+# Piper binaries
+tts_engine/piper/*.exe
+tts_engine/piper/*.dll
+tts_engine/piper/*.ort
+tts_engine/piper/**/*.bin
+tts_engine/piper/espeak-ng-data/
+tts_engine/piper/pkgconfig/
+
+# Piper voice models
+tts_engine/piper/models/
