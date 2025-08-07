@@ -59,3 +59,4 @@ if __name__ == "__main__":
     print("🔊 Algılanan:", input_text)
 
     get_gpt_response(input_text)
+
