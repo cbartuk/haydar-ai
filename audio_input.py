@@ -42,6 +42,13 @@ def record_audio(duration=DURATION):
     recording = sd.rec(int(duration * SAMPLERATE), samplerate=SAMPLERATE, channels=1, dtype='int16')
     sd.wait()
 
+    # Ses seviyesini kontrol et
+    max_amplitude = np.abs(recording).max()
+    print(f"🔊 Maksimum ses seviyesi: {max_amplitude}")
+
+    if max_amplitude < 100:
+        print("⚠️ UYARI: Mikrofon ses algılamıyor! Lütfen mikrofon ayarlarınızı kontrol edin.")
+
     # Geçici WAV dosyasına kaydet
     temp_wav = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
     wav.write(temp_wav.name, SAMPLERATE, recording)
@@ -52,14 +59,28 @@ def record_audio(duration=DURATION):
 def transcribe_audio(audio_path):
     print("📝 Ses yazıya dönüştürülüyor...")
 
-    # Global model kullan (her seferinde yeniden yükleme yok)
-    result = WHISPER_MODEL.transcribe(audio_path, language='tr')
+    try:
+        # Ses dosyasını kontrol et
+        sample_rate, audio_data = wav.read(audio_path)
 
-    # Boşlukları temizle
-    text = result['text'].strip()
+        # Ses seviyesini kontrol et (çok sessiz mi?)
+        audio_amplitude = np.abs(audio_data).max()
+        if audio_amplitude < 100:  # Çok düşük ses seviyesi
+            print("⚠️ Ses algılanamadı (çok sessiz)")
+            return ""
 
-    print(f"📄 Metin: {text}")
-    return text
+        # Global model kullan (her seferinde yeniden yükleme yok)
+        result = WHISPER_MODEL.transcribe(audio_path, language='tr')
+
+        # Boşlukları temizle
+        text = result['text'].strip()
+
+        print(f"📄 Metin: {text}")
+        return text
+
+    except Exception as e:
+        print(f"❌ Transkripsiyon hatası: {e}")
+        return ""
 
 def listen_and_transcribe():
     audio_path = record_audio()
