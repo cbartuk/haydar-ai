@@ -6,7 +6,7 @@ import tempfile
 PIPER_DIR = os.path.join("tts_engine", "piper")
 MODEL_PATH = os.path.join(PIPER_DIR, "models", "tr_TR-fahrettin-medium.onnx")
 CONFIG_PATH = os.path.join(PIPER_DIR, "models", "tr_TR-fahrettin-medium.onnx.json")
-PIPER_EXE = os.path.join(PIPER_DIR, "piper.exe")
+PIPER_EXE = os.path.join(PIPER_DIR, "piper", "piper")
 
 def synthesize(text, play_audio=True):
     # Geçici WAV dosyası
@@ -31,7 +31,12 @@ def synthesize(text, play_audio=True):
         print(f"✅ Ses üretildi: {wav_path}")
 
         if play_audio:
-            os.system(f'start {wav_path}' if os.name == 'nt' else f'afplay {wav_path}')
+            if os.name == 'nt':
+                os.system(f'start {wav_path}')
+            elif os.uname().sysname == 'Darwin':
+                os.system(f'afplay {wav_path}')
+            else:
+                os.system(f'aplay {wav_path}')
         return wav_path
 
     except subprocess.CalledProcessError as e:
